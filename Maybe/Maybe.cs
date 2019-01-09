@@ -170,18 +170,4 @@ namespace MaybeType
             return false;
         }
     }
-
-    public static class Maybe
-    {
-        public static Maybe<T> None<T>() => new Maybe<T>();
-
-        public static Maybe<T> Some<T>(T value) => new Maybe<T>(value);
-    }
-
-    public static class MaybeExtensions
-    {
-        public static Maybe<T> Some<T>(this T value) => new Maybe<T>(value);
-
-        public static Maybe<T> None<T>(this T _) => new Maybe<T>();
-    }
 }
