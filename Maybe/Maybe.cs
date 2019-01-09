@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,9 +6,9 @@ namespace MaybeType
 {
     public readonly struct Maybe<T> : IEquatable<Maybe<T>>
     {
-        private readonly T _value;
-
         public bool HasValue { get; }
+
+        private readonly T _value;
 
         internal Maybe(T value = default)
         {
@@ -32,14 +31,7 @@ namespace MaybeType
 
         public bool Contains(T value)
         {
-            if (HasValue)
-            {
-                return _value.Equals(value);
-            }
-            else
-            {
-                return value == null;
-            }
+            return HasValue && _value.Equals(value);
         }
 
         public T ValueOr(T other)
@@ -62,43 +54,43 @@ namespace MaybeType
             return getOther();
         }
 
-        public TOut Match<TOut>(Func<T, TOut> matchSome, Func<TOut> matchNone)
+        public TOut Match<TOut>(Func<T, TOut> functionIfSome, Func<TOut> functionIfNone)
         {
             if (HasValue)
             {
-                return matchSome(_value);
+                return functionIfSome(_value);
             }
             else
             {
-                return matchNone();
+                return functionIfNone();
             }
         }
 
-        public void Match(Action<T> matchSome, Action matchNone)
+        public void Match(Action<T> actionIfSome, Action actionIfNone)
         {
             if (HasValue)
             {
-                matchSome(_value);
+                actionIfSome(_value);
             }
             else
             {
-                matchNone();
+                actionIfNone();
             }
         }
 
-        public void MatchSome(Action<T> action)
+        public void MatchSome(Action<T> actionIfSome)
         {
             if (HasValue)
             {
-                action(_value);
+                actionIfSome(_value);
             }
         }
 
-        public void MatchNone(Action action)
+        public void MatchNone(Action actionIfNone)
         {
             if (!HasValue)
             {
-                action();
+                actionIfNone();
             }
         }
 
