@@ -57,7 +57,7 @@ namespace MaybeTests
         {
             Maybe<object> none = null;
 
-            Assert.True(none.Contains(null));
+            Assert.False(none.Contains(null));
         }
 
         [Fact]
@@ -120,7 +120,6 @@ namespace MaybeTests
             Maybe<object> none = noValue.Some();
 
             Assert.False(none.HasValue);
-            Assert.True(none.Contains(noValue));
         }
 
         [Fact]
