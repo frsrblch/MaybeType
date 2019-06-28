@@ -36,22 +36,12 @@ namespace MaybeType
 
         public T ValueOr(T other)
         {
-            if (HasValue)
-            {
-                return _value;
-            }
-
-            return other;
+            return Match(value => value, () => other);
         }
 
         public T ValueOr(Func<T> getOther)
         {
-            if (HasValue)
-            {
-                return _value;
-            }
-
-            return getOther();
+            return Match(value => value, getOther);
         }
 
         public TOut Match<TOut>(Func<T, TOut> functionIfSome, Func<TOut> functionIfNone)
@@ -80,42 +70,22 @@ namespace MaybeType
 
         public void MatchSome(Action<T> actionIfSome)
         {
-            if (HasValue)
-            {
-                actionIfSome(_value);
-            }
+            Match(actionIfSome, () => { });
         }
 
         public void MatchNone(Action actionIfNone)
         {
-            if (!HasValue)
-            {
-                actionIfNone();
-            }
+            Match(_ => { }, actionIfNone);
         }
 
         public Maybe<TOut> Map<TOut>(Func<T, TOut> mapFunction)
         {
-            if (HasValue)
-            {
-                return mapFunction(_value);
-            }
-            else
-            {
-                return Maybe.None<TOut>();
-            }
+            return Match(some => mapFunction(some), Maybe.None<TOut>);
         }
 
         public Maybe<TOut> Map<TOut>(Func<T, Maybe<TOut>> mapFunction)
         {
-            if (HasValue)
-            {
-                return mapFunction(_value);
-            }
-            else
-            {
-                return Maybe.None<TOut>();
-            }
+            return Match(mapFunction, Maybe.None<TOut>);
         }
 
         public Maybe<T> SomeWhen(Predicate<T> predicate)
@@ -130,12 +100,7 @@ namespace MaybeType
 
         public Maybe<T> NoneWhen(Predicate<T> predicate)
         {
-            if (HasValue && !predicate(_value))
-            {
-                return this;
-            }
-
-            return Maybe.None<T>();
+            return SomeWhen(value => !predicate(value));
         }
 
         public IEnumerator<T> GetEnumerator()
@@ -150,24 +115,22 @@ namespace MaybeType
         {
             if (HasValue)
             {
-                return new T[] { _value };
+                yield return _value;
             }
-            return Enumerable.Empty<T>();
         }
 
         public bool Equals(Maybe<T> other)
         {
-            if (HasValue && other.HasValue)
-            {
-                return _value.Equals(other._value);
-            }
+            return Match(
+                value => other.Contains(value),
+                () => !other.HasValue);
+        }
 
-            if (!HasValue && !other.HasValue)
-            {
-                return true;
-            }
-
-            return false;
+        public override string ToString()
+        {
+            return Match(
+                value => $"Some({value})",
+                () => "None");
         }
     }
 }

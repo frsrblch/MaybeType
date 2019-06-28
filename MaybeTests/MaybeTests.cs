@@ -14,6 +14,13 @@ namespace MaybeTests
 
             Assert.False(none.HasValue);
         }
+        [Fact]
+        public void Default_IsEmpty()
+        {
+            Maybe<object> none = default;
+
+            Assert.False(none.HasValue);
+        }
 
         [Fact]
         public void GivenObject_ReturnsWithValue()
