@@ -455,5 +455,21 @@ namespace MaybeTests
 
             Assert.False(none.NoneWhen(isEven).HasValue);
         }
+
+        [Fact]
+        public void ToString_GivenNone_ReturnsNone()
+        {
+            Maybe<string> none = Maybe.None<string>();
+
+            Assert.Equal("None", none.ToString());
+        }
+
+        [Fact]
+        public void ToString_GivenSome_ReturnsSomeAndValue()
+        {
+            Maybe<string> some = Maybe.Some("ABC");
+
+            Assert.Equal("Some(ABC)", some.ToString());
+        }
     }
 }
