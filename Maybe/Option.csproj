@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>7.2</LangVersion>
+    <AssemblyName>Option</AssemblyName>
+    <RootNamespace>Option</RootNamespace>
   </PropertyGroup>
 
 </Project>

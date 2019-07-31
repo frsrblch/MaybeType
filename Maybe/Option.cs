@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MaybeType
+namespace Option
 {
-    public readonly struct Maybe<T> : IEquatable<Maybe<T>>
+    public readonly struct Option<T> : IEquatable<Option<T>>
     {
         public bool HasValue { get; }
 
         private readonly T _value;
 
-        internal Maybe(T value = default)
+        internal Option(T value = default)
         {
             if (value == null)
             {
@@ -24,9 +24,9 @@ namespace MaybeType
             }
         }
 
-        public static implicit operator Maybe<T>(T value)
+        public static implicit operator Option<T>(T value)
         {
-            return new Maybe<T>(value);
+            return new Option<T>(value);
         }
 
         public bool Contains(T value)
@@ -78,17 +78,17 @@ namespace MaybeType
             Match(_ => { }, actionIfNone);
         }
 
-        public Maybe<TOut> Map<TOut>(Func<T, TOut> mapFunction)
+        public Option<TOut> Map<TOut>(Func<T, TOut> mapFunction)
         {
             return Match(some => mapFunction(some), Maybe.None<TOut>);
         }
 
-        public Maybe<TOut> Map<TOut>(Func<T, Maybe<TOut>> mapFunction)
+        public Option<TOut> Map<TOut>(Func<T, Option<TOut>> mapFunction)
         {
             return Match(mapFunction, Maybe.None<TOut>);
         }
 
-        public Maybe<T> SomeWhen(Predicate<T> predicate)
+        public Option<T> SomeWhen(Predicate<T> predicate)
         {
             if (HasValue && predicate(_value))
             {
@@ -98,7 +98,7 @@ namespace MaybeType
             return Maybe.None<T>();
         }
 
-        public Maybe<T> NoneWhen(Predicate<T> predicate)
+        public Option<T> NoneWhen(Predicate<T> predicate)
         {
             return SomeWhen(value => !predicate(value));
         }
@@ -119,7 +119,7 @@ namespace MaybeType
             }
         }
 
-        public bool Equals(Maybe<T> other)
+        public bool Equals(Option<T> other)
         {
             return Match(
                 value => other.Contains(value),
