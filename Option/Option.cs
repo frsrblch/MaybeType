@@ -77,14 +77,14 @@ namespace Option
         {
             return Match(
                 mapFunction,
-                default);
+                Option.None<TOut>);
         }
 
         public Option<TValue> Filter(Predicate<TValue> predicate)
         {
             return Match(
                 value => predicate(value) ? value : value.None(),
-                () => default);
+                Option.None<TValue>);
         }
 
         public TValue ValueOr(TValue other)
@@ -96,7 +96,9 @@ namespace Option
 
         public TValue ValueOr(Func<TValue> getOther)
         {
-            return Match(value => value, getOther);
+            return Match(
+                value => value,
+                getOther);
         }
 
         public TValue ValueOrThrow(string message = null)
