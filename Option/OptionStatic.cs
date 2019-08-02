@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Option
 {
-    public static class Maybe
+    public static class Option
     {
         public static Option<T> None<T>() => new Option<T>();
 
