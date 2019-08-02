@@ -75,7 +75,9 @@ namespace Option
 
         public Option<TOut> Map<TOut>(Func<TValue, Option<TOut>> mapFunction)
         {
-            return Match(mapFunction, Option.None<TOut>);
+            return Match(
+                mapFunction,
+                default);
         }
 
         public Option<TValue> Filter(Predicate<TValue> predicate)
@@ -87,7 +89,9 @@ namespace Option
 
         public TValue ValueOr(TValue other)
         {
-            return Match(value => value, () => other);
+            return Match(
+                value => value,
+                () => other);
         }
 
         public TValue ValueOr(Func<TValue> getOther)
