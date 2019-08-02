@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Option", "Maybe\Option.csproj", "{8618AD24-1D36-4C07-9133-66173932024E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Option", "Option\Option.csproj", "{8618AD24-1D36-4C07-9133-66173932024E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OptionTests", "MaybeTests\OptionTests.csproj", "{00E843CB-69B4-433E-8E10-2CF6FF98AA13}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OptionTests", "OptionTests\OptionTests.csproj", "{00E843CB-69B4-433E-8E10-2CF6FF98AA13}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
