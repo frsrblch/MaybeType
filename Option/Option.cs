@@ -4,13 +4,13 @@ using System.Linq;
 
 namespace Option
 {
-    public readonly struct Option<T> : IEquatable<Option<T>>
+    public readonly struct Option<TValue> : IEquatable<Option<TValue>>
     {
         public bool HasValue { get; }
 
-        private readonly T _value;
+        private readonly TValue _value;
 
-        internal Option(T value = default)
+        internal Option(TValue value = default)
         {
             if (value == null)
             {
@@ -24,27 +24,17 @@ namespace Option
             }
         }
 
-        public static implicit operator Option<T>(T value)
+        public static implicit operator Option<TValue>(TValue value)
         {
-            return new Option<T>(value);
+            return new Option<TValue>(value);
         }
 
-        public bool Contains(T value)
+        public bool Contains(TValue value)
         {
             return HasValue && _value.Equals(value);
         }
 
-        public T ValueOr(T other)
-        {
-            return Match(value => value, () => other);
-        }
-
-        public T ValueOr(Func<T> getOther)
-        {
-            return Match(value => value, getOther);
-        }
-
-        public TOut Match<TOut>(Func<T, TOut> functionIfSome, Func<TOut> functionIfNone)
+        public TOut Match<TOut>(Func<TValue, TOut> functionIfSome, Func<TOut> functionIfNone)
         {
             if (HasValue)
             {
@@ -56,7 +46,7 @@ namespace Option
             }
         }
 
-        public void Match(Action<T> actionIfSome, Action actionIfNone)
+        public void Match(Action<TValue> actionIfSome, Action actionIfNone)
         {
             if (HasValue)
             {
@@ -68,7 +58,7 @@ namespace Option
             }
         }
 
-        public void MatchSome(Action<T> actionIfSome)
+        public void MatchSome(Action<TValue> actionIfSome)
         {
             Match(actionIfSome, () => { });
         }
@@ -78,32 +68,41 @@ namespace Option
             Match(_ => { }, actionIfNone);
         }
 
-        public Option<TOut> Map<TOut>(Func<T, TOut> mapFunction)
+        public Option<TOut> Map<TOut>(Func<TValue, TOut> mapFunction)
         {
-            return Match(some => mapFunction(some), Maybe.None<TOut>);
+            return Match(some => mapFunction(some), Option.None<TOut>);
         }
 
-        public Option<TOut> Map<TOut>(Func<T, Option<TOut>> mapFunction)
+        public Option<TOut> Map<TOut>(Func<TValue, Option<TOut>> mapFunction)
         {
-            return Match(mapFunction, Maybe.None<TOut>);
+            return Match(mapFunction, Option.None<TOut>);
         }
 
-        public Option<T> SomeWhen(Predicate<T> predicate)
+        public Option<TValue> Filter(Predicate<TValue> predicate)
         {
-            if (HasValue && predicate(_value))
-            {
-                return this;
-            }
-
-            return Maybe.None<T>();
+            return Match(
+                value => predicate(value) ? value : value.None(),
+                () => default);
         }
 
-        public Option<T> NoneWhen(Predicate<T> predicate)
+        public TValue ValueOr(TValue other)
         {
-            return SomeWhen(value => !predicate(value));
+            return Match(value => value, () => other);
         }
 
-        public IEnumerator<T> GetEnumerator()
+        public TValue ValueOr(Func<TValue> getOther)
+        {
+            return Match(value => value, getOther);
+        }
+
+        public TValue ValueOrThrow(string message = null)
+        {
+            return Match(
+                value => value,
+                () => throw new InvalidOperationException(message));
+        }
+
+        public IEnumerator<TValue> GetEnumerator()
         {
             if (HasValue)
             {
@@ -111,7 +110,7 @@ namespace Option
             }
         }
 
-        public IEnumerable<T> ToEnumerable()
+        public IEnumerable<TValue> ToEnumerable()
         {
             if (HasValue)
             {
@@ -119,7 +118,7 @@ namespace Option
             }
         }
 
-        public bool Equals(Option<T> other)
+        public bool Equals(Option<TValue> other)
         {
             return Match(
                 value => other.Contains(value),

@@ -10,7 +10,7 @@ namespace MaybeTests
         [Fact]
         public void GivenNull_ReturnsEmpty()
         {
-            Option<object> none = Option.Maybe.Some<object>(null);
+            Option<object> none = Option.Option.Some<object>(null);
 
             Assert.False(none.HasValue);
         }
@@ -27,7 +27,7 @@ namespace MaybeTests
         {
             object value = new object();
 
-            Option<object> some = Option.Maybe.Some(value);
+            Option<object> some = Option.Option.Some(value);
 
             Assert.True(some.HasValue);
             Assert.True(some.Contains(value));
@@ -105,7 +105,7 @@ namespace MaybeTests
         [Fact]
         public void Maybe_None_ReturnsEmpty()
         {
-            Option<object> none = Option.Maybe.None<object>();
+            Option<object> none = Option.Option.None<object>();
 
             Assert.False(none.HasValue);
         }
@@ -142,7 +142,7 @@ namespace MaybeTests
         [Fact]
         public void Foreach_None_ReturnsEmptyEnumerable()
         {
-            Option<object> none = Option.Maybe.None<object>();
+            Option<object> none = Option.Option.None<object>();
 
             int count = 0;
             foreach (var item in none)
@@ -178,7 +178,7 @@ namespace MaybeTests
         [Fact]
         public void ValueOr_FromNone_ReturnsOrValue()
         {
-            Option<int> none = Option.Maybe.None<int>();
+            Option<int> none = Option.Option.None<int>();
 
             Assert.Equal(3, none.ValueOr(3));
         }
@@ -202,7 +202,7 @@ namespace MaybeTests
         public void ValueOrFunc_FromNone_ReturnsResultFromFunc()
         {
             int getThree() => 3;
-            Option<int> none = Option.Maybe.None<int>();
+            Option<int> none = Option.Option.None<int>();
 
             Assert.Equal(3, none.ValueOr(getThree));
         }
@@ -220,7 +220,7 @@ namespace MaybeTests
         [Fact]
         public void MatchFunc_None_ReturnMatchNone()
         {
-            Option<int> none = Option.Maybe.None<int>();
+            Option<int> none = Option.Option.None<int>();
 
             int result = none.Match(i => i * 3, () => 0);
 
@@ -253,7 +253,7 @@ namespace MaybeTests
             void someAction(int _) => someExecuted = true;
             void noneAction() => noneExecuted = true;
 
-            Option<int> none = Option.Maybe.None<int>();
+            Option<int> none = Option.Option.None<int>();
 
             none.Match(someAction, noneAction);
 
@@ -278,7 +278,7 @@ namespace MaybeTests
         {
             bool actionPerformed = false;
             void someAction(int _) => actionPerformed = true;
-            Option<int> none = Option.Maybe.None<int>();
+            Option<int> none = Option.Option.None<int>();
 
             none.MatchSome(someAction);
 
@@ -302,7 +302,7 @@ namespace MaybeTests
         {
             bool actionPerformed = false;
             void noneAction() => actionPerformed = true;
-            Option<int> none = Option.Maybe.None<int>();
+            Option<int> none = Option.Option.None<int>();
 
             none.MatchNone(noneAction);
 
@@ -321,7 +321,7 @@ namespace MaybeTests
         [Fact]
         public void Map_None_ReturnsEmpty()
         {
-            Option<int> none = Option.Maybe.None<int>();
+            Option<int> none = Option.Option.None<int>();
 
             Option<int> stillNone = none.Map(x => x + 2);
 
@@ -389,8 +389,8 @@ namespace MaybeTests
         [InlineData(null, "1", false)]
         public void EqualsMaybeTests(string item1, string item2, bool expected)
         {
-            Option<string> maybe1 = Option.Maybe.Some(item1);
-            Option<string> maybe2 = Option.Maybe.Some(item2);
+            Option<string> maybe1 = Option.Option.Some(item1);
+            Option<string> maybe2 = Option.Option.Some(item2);
 
             Assert.Equal(expected, maybe1.Equals(maybe2));
         }
@@ -403,7 +403,7 @@ namespace MaybeTests
         [InlineData(null, "1", false)]
         public void EqualsTests(string item1, string item2, bool expected)
         {
-            Option<string> maybe1 = Option.Maybe.Some(item1);
+            Option<string> maybe1 = Option.Option.Some(item1);
 
             Assert.Equal(expected, maybe1.Equals(item2));
         }
@@ -414,7 +414,7 @@ namespace MaybeTests
             Predicate<int> isEven = i => i % 2 == 0;
             Option<int> someEven = 2;
 
-            Assert.True(someEven.SomeWhen(isEven).Contains(2));
+            Assert.True(someEven.Filter(isEven).Contains(2));
         }
 
         [Fact]
@@ -423,49 +423,22 @@ namespace MaybeTests
             Predicate<int> isEven = i => i % 2 == 0;
             Option<int> someOdd = 3;
 
-            Assert.False(someOdd.SomeWhen(isEven).HasValue);
+            Assert.False(someOdd.Filter(isEven).HasValue);
         }
 
         [Fact]
         public void SomeWhen_None_ReturnsNone()
         {
             Predicate<int> isEven = i => i % 2 == 0;
-            Option<int> none = Option.Maybe.None<int>();
+            Option<int> none = Option.Option.None<int>();
 
-            Assert.False(none.SomeWhen(isEven).HasValue);
-        }
-
-        [Fact]
-        public void NoneWhen_SomeMatchesPredicate_ReturnsNone()
-        {
-            Predicate<int> isEven = i => i % 2 == 0;
-            Option<int> someEven = 2;
-
-            Assert.False(someEven.NoneWhen(isEven).HasValue);
-        }
-
-        [Fact]
-        public void NoneWhen_SomeDoesNotMatchPredicate_ReturnsNone()
-        {
-            Predicate<int> isEven = i => i % 2 == 0;
-            Option<int> someOdd = 3;
-
-            Assert.True(someOdd.NoneWhen(isEven).Contains(3));
-        }
-
-        [Fact]
-        public void NoneWhen_None_ReturnsNone()
-        {
-            Predicate<int> isEven = i => i % 2 == 0;
-            Option<int> none = Option.Maybe.None<int>();
-
-            Assert.False(none.NoneWhen(isEven).HasValue);
+            Assert.False(none.Filter(isEven).HasValue);
         }
 
         [Fact]
         public void ToString_GivenNone_ReturnsNone()
         {
-            Option<string> none = Option.Maybe.None<string>();
+            Option<string> none = Option.Option.None<string>();
 
             Assert.Equal("None", none.ToString());
         }
@@ -473,7 +446,7 @@ namespace MaybeTests
         [Fact]
         public void ToString_GivenSome_ReturnsSomeAndValue()
         {
-            Option<string> some = Option.Maybe.Some("ABC");
+            Option<string> some = Option.Option.Some("ABC");
 
             Assert.Equal("Some(ABC)", some.ToString());
         }
