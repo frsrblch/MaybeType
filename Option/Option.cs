@@ -1,12 +1,15 @@
-﻿using System;
+﻿using ResultType;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Option
+namespace OptionType
 {
     public readonly struct Option<TValue> : IEquatable<Option<TValue>>
     {
-        public bool HasValue { get; }
+        public bool IsSome { get; }
+
+        public bool IsNone => !IsSome;
 
         private readonly TValue _value;
 
@@ -15,12 +18,12 @@ namespace Option
             if (value == null)
             {
                 _value = default;
-                HasValue = false;
+                IsSome = false;
             }
             else
             {
                 _value = value;
-                HasValue = true;
+                IsSome = true;
             }
         }
 
@@ -31,12 +34,12 @@ namespace Option
 
         public bool Contains(TValue value)
         {
-            return HasValue && _value.Equals(value);
+            return IsSome && _value.Equals(value);
         }
 
         public TOut Match<TOut>(Func<TValue, TOut> functionIfSome, Func<TOut> functionIfNone)
         {
-            if (HasValue)
+            if (IsSome)
             {
                 return functionIfSome(_value);
             }
@@ -48,7 +51,7 @@ namespace Option
 
         public void Match(Action<TValue> actionIfSome, Action actionIfNone)
         {
-            if (HasValue)
+            if (IsSome)
             {
                 actionIfSome(_value);
             }
@@ -58,14 +61,45 @@ namespace Option
             }
         }
 
-        public void MatchSome(Action<TValue> actionIfSome)
+        public void AndThen(Action<TValue> actionIfSome)
         {
             Match(actionIfSome, () => { });
         }
 
-        public void MatchNone(Action actionIfNone)
+        public Option<UValue> AndThen<UValue>(Func<TValue, Option<UValue>> function)
+        {
+            return Match(function, Option.None<UValue>);
+        }
+
+        public Option<UValue> AndThen<UValue>(Func<TValue, UValue> function)
+        {
+            return Match(value => function(value).Some(), Option.None<UValue>);
+        }
+
+        public void OrElse(Action actionIfNone)
         {
             Match(_ => { }, actionIfNone);
+        }
+
+        public Option<TValue> Or(Option<TValue> alternative)
+        {
+            return Match(
+                value => value.Some(),
+                () => alternative);
+        }
+
+        public Option<TValue> OrElse(Func<TValue> function)
+        {
+            return Match(
+                value => value.Some(),
+                () => function().Some());
+        }
+
+        public Option<TValue> OrElse(Func<Option<TValue>> function)
+        {
+            return Match(
+                value => value.Some(),
+                () => function());
         }
 
         public Option<TOut> Map<TOut>(Func<TValue, TOut> mapFunction)
@@ -108,9 +142,16 @@ namespace Option
                 () => throw new InvalidOperationException(message));
         }
 
+        public Result<TValue, TError> OkayOr<TError>(TError error)
+        {
+            return Match(
+                value => Result.Okay<TValue, TError>(value),
+                () => Result.Error<TValue, TError>(error));
+        }
+
         public IEnumerator<TValue> GetEnumerator()
         {
-            if (HasValue)
+            if (IsSome)
             {
                 yield return _value;
             }
@@ -118,7 +159,7 @@ namespace Option
 
         public IEnumerable<TValue> ToEnumerable()
         {
-            if (HasValue)
+            if (IsSome)
             {
                 yield return _value;
             }
@@ -128,7 +169,25 @@ namespace Option
         {
             return Match(
                 value => other.Contains(value),
-                () => !other.HasValue);
+                () => !other.IsSome);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Option<TValue> other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hash = 281;
+                if (IsSome)
+                {
+                    hash = (hash * 251) + _value.GetHashCode();
+                }
+                return hash;
+            }
         }
 
         public override string ToString()

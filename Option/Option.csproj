@@ -7,4 +7,10 @@
     <RootNamespace>Option</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Reference Include="Result">
+      <HintPath>..\..\Result\Result\bin\Release\netstandard2.0\Result.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
